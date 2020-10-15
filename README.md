@@ -3,6 +3,7 @@ Controlling an E58 drone with an ESP uC
 
 What I have learned so far:
 
+- The drone can easily lift at least one additional battery pack (18g)
 - The Eachine E58 drone uses the Lewei LW9809 camera/WiFi modul (http://www.le-wei.com/eacp_view.asp?id=66)
 - It opens an access point and has a DHCP server, that can connect at least two WiFi clients at the same time
 - An ESP8266 can connect to the drone without any problems (even in parallel to the JYUfo App)
@@ -18,4 +19,4 @@ What I have learned so far:
 Ideas:
 - There seems to be a one-way serial protocol from the camera/WiFi controller to the flight controller (1 wire, see https://www.youtube.com/watch?v=HoZUKzStchg 9:55). What about this protocol (same as on port 50000)? 
 - Would it be possible to add a GPS controller via WiFi (or serial connection)?
-- The non-intrusive idea for a GPS controller via WiFi would be, to use an intermediate ESP between the App and the drone (as router). This router could forward all move commands from the controller, thus you can fly the drone normally. As soon as the controller sends no more movements, the GPS takes over an tries to hold the position. Orientation of the drone could either be deduced from the last movements or with an additional compass.
+- The non-intrusive idea for a GPS controller via WiFi would be, to use an intermediate ESP between the App and the drone (as router). This router could forward all move commands from the controller, thus you can fly the drone normally. As soon as the controller sends no more movements, the GPS takes over an tries to hold the position. Orientation of the drone could either be deduced from the last movements or with an additional compass. (E58Control.ino is the base of this development)
