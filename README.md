@@ -39,4 +39,5 @@ Ideas:
 
 Programs:
 - The E58.ino sketch simply starts the drone by sending the UDP command to port 50000 (CAUTION: no further control - keep it in your hand or it will crash!)
-- The E58Contol.ino sketch will connect to the drone (change STASSID for your drone) and offers a WiFi network "E58drone". When you connect your JYUfo App to this network, you can fly the drone. The ESP will print the control bytes to serial console.
+
+- The E58Contol.ino sketch will connect to the drone (change STASSID for your drone) and offers a WiFi network "E58drone". When you connect your JYUfo App to this network, you can fly the drone. When the App turns off (or loses signal to the ESP's WiFi network) the ESP will continue to send control command to the drone. Currently it just tells it to keep on hovering, but here a more intelligent controll might come in (GPS).

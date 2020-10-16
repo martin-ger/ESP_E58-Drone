@@ -3,7 +3,18 @@
   Very basic code to control the Eachine E58 drone
 */
 
-#if LWIP_FEATURES && !LWIP_IPV6
+#if !LWIP_FEATURES || LWIP_IPV6
+#error "NAT routing not available"
+#endif
+
+#include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
+#include <lwip/napt.h>
+#include <lwip/dns.h>
+#include <lwip/netif.h>
+#include <netif/etharp.h>
+#include <lwip/udp.h>
+#include <dhcpserver.h>
 
 #ifndef STASSID
 #define STASSID "WiFi-720P-2CDC1C"
@@ -12,15 +23,7 @@
 #endif
 
 #define ControlPort 50000
-
-#include <ESP8266WiFi.h>
-#include <lwip/napt.h>
-#include <lwip/dns.h>
-#include <lwip/netif.h>
-#include <netif/etharp.h>
-#include <lwip/udp.h>
-#include <dhcpserver.h>
-
+#define LocalPort   8888
 #define NAPT 1000
 #define NAPT_PORT 10
 
@@ -37,50 +40,16 @@ struct tcp_hdr {
 } PACK_STRUCT_STRUCT;
 PACK_STRUCT_END
 
+WiFiUDP Udp;
+unsigned long last_controller_msg_time;
+
+// Fixed address of the drone
+IPAddress ip(192, 168, 0, 1);
+
 static netif_input_fn orig_input_drone;
 static netif_linkoutput_fn orig_output_drone;
 
 bool check_packet_in(struct pbuf *p) {
-struct eth_hdr *mac_h;
-struct ip_hdr *ip_h;
-struct udp_hdr *udp_h;
-struct tcp_hdr *tcp_h;
-char *payload;
-/*
-  if (p->len < sizeof(struct eth_hdr))
-    return false;
-
-  mac_h = (struct eth_hdr *)p->payload;
-
-  // Check only IPv4 traffic
-  if (ntohs(mac_h->type) != ETHTYPE_IP)
-    return true;
-
-  if (p->len < sizeof(struct eth_hdr)+sizeof(struct ip_hdr))
-    return false;
-
-  ip_h = (struct ip_hdr *)(p->payload + sizeof(struct eth_hdr));
-
-
-  if (IPH_PROTO(ip_h) == IP_PROTO_UDP) {
-    if (p->len < sizeof(struct eth_hdr)+sizeof(struct ip_hdr)+sizeof(struct udp_hdr))
-      return false;
-
-    udp_h = (struct udp_hdr *)(p->payload + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
-    payload = (char*)(p->payload + sizeof(struct eth_hdr) + sizeof(struct ip_hdr) + sizeof(struct udp_hdr));
-
-    if (ntohs(udp_h->dest) == ControlPort) {
-      Serial.printf("X %+3d Y %+3d Z %+3d R %+3d C %x\n", payload[1], payload[2], payload[3], payload[4], payload[5]); 
-    }
-  }
-
-  if (IPH_PROTO(ip_h) == IP_PROTO_TCP) {
-    if (p->len < sizeof(struct eth_hdr)+sizeof(struct ip_hdr)+sizeof(struct tcp_hdr))
-      return false;
-
-    tcp_h = (struct tcp_hdr *)(p->payload + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
-  }
-*/
   return true;
 }
 
@@ -97,7 +66,7 @@ err_t my_input_drone (struct pbuf *p, struct netif *inp) {
 bool check_packet_out(struct pbuf *p) {
 struct eth_hdr *mac_h;
 struct ip_hdr *ip_h;
-struct udp_hdr *udp_h;
+struct udp_hdr *udp_he;
 struct tcp_hdr *tcp_h;
 char *payload;
 
@@ -119,21 +88,22 @@ char *payload;
     if (p->len < sizeof(struct eth_hdr)+sizeof(struct ip_hdr)+sizeof(struct udp_hdr))
       return false;
 
-    udp_h = (struct udp_hdr *)(p->payload + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
+    udp_he = (struct udp_hdr *)(p->payload + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
     payload = (char*)(p->payload + sizeof(struct eth_hdr) + sizeof(struct ip_hdr) + sizeof(struct udp_hdr));
 
-    if (ntohs(udp_h->dest) == ControlPort) {
-      Serial.printf("X %+04d Y %+04d Z %+04d R %+04d C %x\n", payload[1]-0x80, payload[2]-0x80, payload[3]-0x80, payload[4]-0x80, payload[5]); 
+    if (ntohs(udp_he->dest) == ControlPort && ntohs(udp_he->src) != LocalPort) {
+      last_controller_msg_time = millis();
+      //Serial.printf("X %+04d Y %+04d Z %+04d R %+04d C %x\n", payload[1]-0x80, payload[2]-0x80, payload[3]-0x80, payload[4]-0x80, payload[5]); 
     }
   }
-
-  if (IPH_PROTO(ip_h) == IP_PROTO_TCP) {
+/*
+  else if (IPH_PROTO(ip_h) == IP_PROTO_TCP) {
     if (p->len < sizeof(struct eth_hdr)+sizeof(struct ip_hdr)+sizeof(struct tcp_hdr))
       return false;
 
     tcp_h = (struct tcp_hdr *)(p->payload + sizeof(struct eth_hdr) + sizeof(struct ip_hdr));
   }
-
+*/
   return true;
 }
 
@@ -164,6 +134,14 @@ struct netif *nif;
   }
 }
 
+void send_control_message(byte x, byte y, byte z, byte rot, byte command){
+  static byte msg[] = {0x66, x, y, z, rot, command, 0x00, 0x99};
+  msg[6] = msg[1] ^ msg[2] ^ msg[3] ^ msg[4] ^ msg[5];
+  
+  Udp.beginPacket(ip, 50000);
+  Udp.write(msg, sizeof(msg));
+  Udp.endPacket();
+}
 
 void setup() {
   Serial.begin(115200);
@@ -201,16 +179,18 @@ void setup() {
   
   // Insert the filter functions
   patch_netif(WiFi.localIP(), my_input_drone, &orig_input_drone, my_output_drone, &orig_output_drone);
+
+  // Set local port
+  Udp.begin(LocalPort);
+
+  last_controller_msg_time = millis();
 }
-
-#else
-
-void setup() {
-  Serial.begin(115200);
-  Serial.printf("\n\nNAPT not supported in this configuration\n");
-}
-
-#endif
 
 void loop() {
+  //Serial.printf("Last Controller Msg: %d\n", millis() - last_controller_msg_time);
+  if (millis() - last_controller_msg_time  > 200) {
+    // send your own control message - "Stay as you are" at the moment
+    send_control_message(0x80, 0x80, 0x80, 0x80, 0x00);
+  }
+  delay(50);
 }
