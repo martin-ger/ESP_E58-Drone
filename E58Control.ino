@@ -27,6 +27,18 @@
 #define NAPT 1000
 #define NAPT_PORT 10
 
+// Command Bits sent to the drone
+
+#define  CMD_NULL       0x00
+#define  CMD_TAKE_OFF   0x01
+#define  CMD_LAND       0x02
+#define  CMD_EMERGENCY  0x04
+#define  CMD_ROLL       0x08
+#define  CMD_HEADLESS   0x10
+#define  CMD_LOCK       0x20
+#define  CMD_UNLOCK     0x40
+#define  CMD_CALIBRATE  0x80
+
 PACK_STRUCT_BEGIN
 struct tcp_hdr {
   PACK_STRUCT_FIELD(u16_t src);
@@ -93,7 +105,7 @@ char *payload;
 
     if (ntohs(udp_he->dest) == ControlPort && ntohs(udp_he->src) != LocalPort) {
       last_controller_msg_time = millis();
-      //Serial.printf("X %+04d Y %+04d Z %+04d R %+04d C %x\n", payload[1]-0x80, payload[2]-0x80, payload[3]-0x80, payload[4]-0x80, payload[5]); 
+      Serial.printf("X %+04d Y %+04d Z %+04d R %+04d C %x\n", payload[1]-0x80, payload[2]-0x80, payload[3]-0x80, payload[4]-0x80, payload[5]); 
     }
   }
 /*
@@ -187,10 +199,15 @@ void setup() {
 }
 
 void loop() {
+/*  for (int i = 1; i < 200; i++) {
+    send_control_message(0x80, 0x80, 0x01, 0x80, 0x40); 
+    delay(50);
+  }
+*/
   //Serial.printf("Last Controller Msg: %d\n", millis() - last_controller_msg_time);
-  if (millis() - last_controller_msg_time  > 200) {
+  if (millis() - last_controller_msg_time  > 170) {
     // send your own control message - "Stay as you are" at the moment
-    send_control_message(0x80, 0x80, 0x80, 0x80, 0x00);
+    send_control_message(0x80, 0x80, 0x80, 0x80, CMD_NULL);
   }
   delay(50);
 }
