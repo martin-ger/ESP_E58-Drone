@@ -9,6 +9,23 @@ What I have learned so far:
 - An ESP8266 can connect to the drone without any problems (even in parallel to the JYUfo App)
 - The E58 drone can be operated via WiFi and the JYUfo App without major problems via an intermediate ESP8266 router (https://github.com/martin-ger/esp_wifi_repeater)
 - The Eachine E58 drone uses the WiFi protocol described here: https://blog.horner.tj/hacking-chinese-drones-for-fun-and-no-profit/
+```
+    1st byte – Header: 66
+    2nd byte – Left/right movement (0-254, with 128 being neutral)
+    3rd byte – Forward/backward movement (0-254, with 128 being neutral)
+    4th byte – Throttle (elevation) (0-254, with 128 being neutral)
+    5th byte – Turning movement (0-254, with 128 being neutral)
+    6th byte – Reserved for commands (0 = no command)
+    7th byte – Checksum (XOR of bytes 2, 3, 4, and 5)
+    8th byte – Footer: 99
+
+Commands:
+    01 – Auto Take-Off
+    02 - Land
+    80 – Calibrate Gyro
+    40 – Unlock Motor
+ ```
+ 
 - Indedendent of the WiFi IP address of smartphone, the JYUfo App always wants to connect to IP 192.168.0.1
 - As soon as the drone gets no more messages on UDP port 50000, the drone stops its motors immediately
 - The control messages to UDP port 50000 are send about every 50ms
