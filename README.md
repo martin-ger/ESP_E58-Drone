@@ -34,7 +34,8 @@ Command Bits (can be ORed):
 - As soon as the drone gets no more messages on UDP port 50000, the drone stops its motors immediately
 - The control messages to UDP port 50000 are send about every 50ms
 - The take off command (byte 5: 01) is sent 22 times in a row (about 1.1 s)
-- The JYUfo App sends, as soon as the contol interface is on, about once per second a UDP message to port 40000, content seems to be constant 7 bytes: 63 63 01 00 00 00 00
+- The JYUfo App sends, as soon as the contol interface is on a UDP message to port 40000, content seems to be these 7 bytes: 63 63 XX 00 00 00 00, where XX is 01 or 02 (first connect/re-connect?). No real idea about its meaning.
+- If there is no drone response, it repeats this message to port 40000 about once per second.
 
 Ideas:
 - There seems to be a one-way serial protocol from the camera/WiFi controller to the flight controller (1 wire, see https://www.youtube.com/watch?v=HoZUKzStchg 9:55). What about this protocol (same as on port 50000)? 
