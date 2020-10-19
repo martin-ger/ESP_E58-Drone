@@ -1,5 +1,7 @@
 # ESP_E58-Drone
-Controlling an E58 drone with an ESP uC 
+Controlling an E58 drone with an ESP uC
+
+<img src="https://raw.githubusercontent.com/martin-ger/ESP_E58-Drone/main/IMG_20201019_170154983_HDR.jpg">
 
 What I have learned so far:
 
