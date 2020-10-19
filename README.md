@@ -5,7 +5,7 @@ Controlling an E58 drone with an ESP uC
 
 What I have learned so far:
 
-- The drone can lift at least an GPS-Modul, its Antenna, and a WEMOS D1 mini.
+- The drone can lift at least an GPS-Modul, its Antenna, and a WEMOS D1 mini (22g).
 - The Eachine E58 drone uses the Lewei LW9809 camera/WiFi modul (http://www.le-wei.com/eacp_view.asp?id=66)
 - It opens an access point and has a DHCP server, that can connect at least two WiFi clients at the same time
 - An ESP8266 can connect to the drone without any problems (even in parallel to the JYUfo App)
