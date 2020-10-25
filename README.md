@@ -1,14 +1,29 @@
 # ESP_E58-Drone
-Controlling an E58 drone with an ESP uC
+Controlling an E58 drone with an ESP8266 uC
 
-<img src="https://raw.githubusercontent.com/martin-ger/ESP_E58-Drone/main/IMG_20201019_170154983_HDR.jpg">
+# The Hardware Mod
 
-What I have learned so far:
+I opened the drone, just 6 screws and you can remove the upper body part:
+<img src="https://raw.githubusercontent.com/martin-ger/ESP_E58-Drone/main/IMG_20201025_112509899_HDR_s.jpg">
+
+Now I soldered 2 wires to the down side of the battery/switch PCB - just plain B+ and B-:
+<img src="https://raw.githubusercontent.com/martin-ger/ESP_E58-Drone/main/IMG_20201025_113207185_HDR_s.jpg">
+
+Made a small hole in the body behind the left front arm to get the wire out:
+<img src="https://raw.githubusercontent.com/martin-ger/ESP_E58-Drone/main/IMG_20201025_121400787_HDR_s.jpg">
+
+Mounted a Wemos D1 mini on the back of the drone and connected battery power via a small switch to 5V and GND - in the front you see a GY-511 LSM303DLHC compass modul connected via I2C to the ESP:
+<img src="https://raw.githubusercontent.com/martin-ger/ESP_E58-Drone/main/IMG_20201025_151930113_HDR_s.jpg">
+
+Result: the drone can fly via the E58Contol.ino program and can be controlled from the intermediate ESP8266. This is my platform for further experiments.
+
+# What I have learned so far:
 
 - The drone can lift at least an GPS-Modul, its Antenna, and a WEMOS D1 mini (22g)
-- Tests with the data of an ublox NEO NEO-6M GPS receiver and http://freenmea.net/
-
-- The Eachine E58 drone uses the Lewei LW9809 camera/WiFi modul (http://www.le-wei.com/eacp_view.asp?id=66)
+- The battery is powerful enough to supply the drone and the additional ESP8266 (around 70mA additionally)
+- The GY-511 LSM303DLHC compass modul seems to work on the drone
+- Tests with the data of an ublox NEO NEO-6M GPS receiver and http://freenmea.net/ were successful, best GPS accuracy with 10 satellites is less than 1m 
+- The Eachine E58 drone itseld has a Lewei LW9809 camera/WiFi modul (http://www.le-wei.com/eacp_view.asp?id=66)
 - It opens an access point and has a DHCP server, that can connect at least two WiFi clients at the same time
 - An ESP8266 can connect to the drone without any problems (even in parallel to the JYUfo App)
 - The E58 drone can be operated via WiFi and the JYUfo App without major problems via an intermediate ESP8266 router (https://github.com/martin-ger/esp_wifi_repeater)
@@ -41,12 +56,12 @@ Command Bits (can be ORed):
 - The JYUfo App sends, as soon as the contol interface is on a UDP message to port 40000, content seems to be these 7 bytes: 63 63 XX 00 00 00 00, where XX is 01 or 02 (first connect/re-connect?). No real idea about its meaning.
 - If there is no drone response, it repeats this message to port 40000 about once per second.
 
-Ideas:
+# Further Ideas:
 - There seems to be a one-way serial protocol from the camera/WiFi controller to the flight controller (1 wire, see https://www.youtube.com/watch?v=HoZUKzStchg 9:55). What about this protocol (same as on port 50000)? 
 - Would it be possible to add a GPS controller via WiFi (or serial connection)?
 - The non-intrusive idea for a GPS controller via WiFi would be, to use an intermediate ESP between the App and the drone (as router). This router could forward all move commands from the controller, thus you can fly the drone normally. As soon as the controller sends no more movements, the GPS takes over an tries to hold the position. Orientation of the drone could either be deduced from the last movements or with an additional compass.
 
-Programs:
+# Programs:
 - The E58.ino sketch simply starts the drone by sending the UDP command to port 50000 (CAUTION: no further control - keep it in your hand or it will crash!)
 
 - The E58Contol.ino sketch will connect to the drone (change STASSID for your drone) and offers a WiFi network "E58drone". When you connect your JYUfo App to this network, you can fly the drone. When the App turns off (or loses signal to the ESP's WiFi network) the ESP will continue to send control commands to the drone. Currently it just tells it to keep on hovering, but here a more intelligent controll might come in (GPS).
