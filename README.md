@@ -5,7 +5,7 @@ The idea of this project is to use a really cheap drone as **plattform for exper
 
 ## The Drone
 
-The Eachine E58 (https://www.eachine.com/de/EACHINE-E58-WIFI-FPV-With-2MP-Wide-Angle-Camera-High-Hold-Mode-Foldable-RC-Drone-Quadcopter-RTF-p-1045.html) is an small (< 100g) and very cheap toy drone (> 30€) that looks pretty much like its bigger brothers from china. It has separate RC and WiFi(!) control, reasonable flight characteristics and even a camera with somewhat poor image quality. However it has neither GPS nor an optical flow sensor for stabilization. This has to be done manually and can be very tricky if there is wind outside.
+The Eachine E58 (https://www.eachine.com/de/EACHINE-E58-WIFI-FPV-With-2MP-Wide-Angle-Camera-High-Hold-Mode-Foldable-RC-Drone-Quadcopter-RTF-p-1045.html) is a small (< 100g) and very cheap foldable toy drone (< 30€) that looks pretty much like its bigger brothers from china. It has separate RC and WiFi(!) control, reasonable flight characteristics and even a camera with somewhat poor image quality. However it has neither GPS nor an optical flow sensor for stabilization. This has to be done manually and can be very tricky if there is wind outside.
 
 The basic controller and the protocols seem to be quite similar to bunch of other chinese drones. They all use similar smartphone apps for video and control, which all seem to be variants from the same OEM build. So the results of this project should be portable to many similar drones.
 
