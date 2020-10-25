@@ -12,6 +12,8 @@ The basic controller and the protocols seem to be quite similar to bunch of othe
 
 ## The Hardware Mod
 
+To save weight I tried to use the drones battery also as power supply for the additional hardware. This seems to work at least for an ESP8266 and a compass modul. 
+
 First I opened the drone, just 6 screws and you can remove the upper body part:
 <img src="https://raw.githubusercontent.com/martin-ger/ESP_E58-Drone/main/IMG_20201025_112509899_HDR_s.jpg">
 
