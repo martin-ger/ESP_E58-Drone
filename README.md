@@ -62,7 +62,8 @@ Command Bits (can be ORed):
     40 – Unlock Motor
     80 – Calibrate Gyro
  ```
- 
+- There is a one-way serial connection from the camera/WiFi controller to the flight controller (1 wire, see https://www.youtube.com/watch?v=HoZUKzStchg 9:55). This is a UART protocol at 19200 bps using the same protocol as above.
+
 - Indedendent of the WiFi IP address of smartphone, the JYUfo App always wants to connect to IP 192.168.0.1
 - As soon as the drone gets no more messages on UDP port 50000, the drone stops its motors immediately
 - The control messages to UDP port 50000 are send about every 50ms
@@ -71,7 +72,6 @@ Command Bits (can be ORed):
 - If there is no drone response, it repeats this message to port 40000 about once per second.
 
 ## Further Ideas:
-- There seems to be a one-way serial protocol from the camera/WiFi controller to the flight controller (1 wire, see https://www.youtube.com/watch?v=HoZUKzStchg 9:55). What about this protocol (same as on port 50000)? 
 - Would it be possible to add a GPS controller via WiFi (or serial connection)?
 - The non-intrusive idea for a GPS controller via WiFi would be, to use an intermediate ESP between the App and the drone (as router). This router could forward all move commands from the controller, thus you can fly the drone normally. As soon as the controller sends no more movements, the GPS takes over an tries to hold the position. Orientation of the drone could either be deduced from the last movements or with an additional compass.
 
